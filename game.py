@@ -1,8 +1,10 @@
+from scoreText import ScoreText
 import arcade
 from arcade.key import F
 from globals import *
 from paddle import Paddle
 from ball import Ball
+from scoreText import ScoreText
 
 class MyGame(arcade.Window):
     def __init__(self, width, height, title):
@@ -11,6 +13,8 @@ class MyGame(arcade.Window):
         self.left_paddle = Paddle()
         self.right_paddle = Paddle()
         self.ball = Ball()
+
+        self.score_text = ScoreText()
 
         #Controls
         self.w_pressed = False
@@ -58,22 +62,35 @@ class MyGame(arcade.Window):
         arcade.start_render()
         self.left_paddle.draw()
         self.right_paddle.draw(SCREEN_WIDTH-15)
+        self.score_text.draw()
+        self.score_text.check_victory()
         self.ball.draw()
 
     def on_update(self, delta_time: float):
-        self.left_paddle.move(self.w_pressed, self.s_pressed)
-        self.right_paddle.move(self.up_pressed, self.down_pressed)
+        
+        if self.ball.x > SCREEN_WIDTH:
+            self.left_paddle.is_connected = True
+            self.score_text.add_right()
+            print(self.left_paddle.is_connected)
+        if self.ball.x < 0:
+            self.right_paddle.is_connected = True
+            self.score_text.add_left()
+            print(self.right_paddle.is_connected)
+
 
         if(self.left_paddle.is_connected):
             self.left_paddle.connect(self.ball)
         if(self.right_paddle.is_connected):
             self.right_paddle.connect(self.ball)
-        if self.d_pressed:
-            self.left_paddle.launchBall(self.ball)
-        if self.left_pressed:
-            self.right_paddle.launchBall(self.ball)
-        if self.left_paddle.is_connected == False and self.right_paddle.is_connected == False:
-            self.ball.move()
+        if(not self.score_text.is_game_end()):    
+            self.left_paddle.move(self.w_pressed, self.s_pressed)
+            self.right_paddle.move(self.up_pressed, self.down_pressed)
+            if self.d_pressed and self.left_paddle.is_connected:
+                self.left_paddle.launchBall(self.ball)
+            if self.left_pressed and self.right_paddle.is_connected:
+                self.right_paddle.launchBall(self.ball)
+            if self.left_paddle.is_connected == False and self.right_paddle.is_connected == False:
+                self.ball.move()
     
         self.ball.detect_paddle(self.right_paddle)
         self.ball.detect_paddle(self.left_paddle)

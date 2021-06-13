@@ -34,11 +34,14 @@ class Paddle:
     def connect(self, ball):
         ball.xDir = 0
         ball.yDir = 0
-        ball.x = self.x + 20
+        if(self.x == 15):
+            ball.x = self.x + 20
+        else:
+            ball.x = self.x - 20
         ball.y = self.y
     def launchBall(self,ball):
         self.is_connected = False
         if(self.x == 15):
-            ball.xDir = 3 + random.random()
+            ball.xDir = 12 + random.random()
         else:
-            ball.xDir = -3 + random.random()
+            ball.xDir = -12 + random.random()
